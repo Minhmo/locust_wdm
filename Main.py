@@ -3,10 +3,13 @@ from random import randint
 import pydevd
 
 
-class SimpleRedisBehaviour(TaskSet):
-    user_ids = []
-    item_ids = []
-    ord_ids = []
+class SimpleGenericBehaviour(TaskSet):
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.user_ids = []
+        self.item_ids = []
+        self.ord_ids = []
 
     # Users
     @task
@@ -158,8 +161,16 @@ class SimpleRedisBehaviour(TaskSet):
         return self.ord_ids[randint(0, arr_len)]
 
 
-class WebsiteUser(HttpLocust):
-    task_set = SimpleRedisBehaviour
-    host = 'http://localhost:8000/redis'
+class GenericWebsiteUser(HttpLocust):
+    task_set = SimpleGenericBehaviour
+    host = 'http://localhost:8000/'
     min_wait = 1000
     max_wait = 3000
+
+
+class RedisWebsiteUser(GenericWebsiteUser):
+    host = GenericWebsiteUser.host + 'redis/'
+
+
+class SqlWebsiteUser(HttpLocust):
+    host = GenericWebsiteUser.host + 'sql/'
