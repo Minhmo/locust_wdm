@@ -14,24 +14,25 @@ class SimpleGenericBehaviour(TaskSet):
     # Users
     @task
     def user_create(self):
-        resp = self.client.post("/users/create")
+        resp = self.client.post("/users/create", {"name": "mihai"})
         json_resp = resp.json()
 
-        self.user_ids.append(json_resp["id"])
+        self.user_ids.append(json_resp["userId"])
 
     @task
     def user_credit_add(self):
         if len(self.user_ids) < 1:
             return
 
-        resp = self.client.post("/users/credit/add/" + self.get_rand_user_id() + "/" + str(randint(1, 100)))
+        resp = self.client.post("/users/credit/add/" + self.get_rand_user_id() + "/" + str(randint(1, 100)),
+                                name="/users/credit/add/")
 
     @task
     def user_credit_add(self):
         if len(self.user_ids) < 1:
             return
 
-        resp = self.client.get("/users/credit/" + self.get_rand_user_id())
+        resp = self.client.get("/users/credit/" + self.get_rand_user_id(), name="/users/credit")
 
     @task
     def user_delete(self):
@@ -39,7 +40,7 @@ class SimpleGenericBehaviour(TaskSet):
             return
 
         user_id = self.get_rand_user_id()
-        resp = self.client.delete("/users/remove/" + user_id)
+        resp = self.client.delete("/users/remove/" + user_id, name="/users/remove")
 
         self.user_ids.remove(user_id)
 
@@ -47,16 +48,16 @@ class SimpleGenericBehaviour(TaskSet):
     def user_find(self):
         if len(self.user_ids) < 1:
             return
-        resp = self.client.get("/users/find?ids[]=" + self.get_rand_user_id())
+        resp = self.client.get("/users/find/" + self.get_rand_user_id(), name="/users/find")
 
     # Stock
     @task
     def stock_create(self):
-        resp = self.client.post("/stock/item/create")
+        resp = self.client.post("/stock/item/create", name="/stock/item/create")
 
         json_resp = resp.json()
 
-        self.item_ids.append(json_resp["id"])
+        self.item_ids.append(json_resp["itemId"])
         # pydevd.settrace('localhost', port=12345, stdoutToServer=True, stderrToServer=True)
 
     @task
@@ -64,14 +65,14 @@ class SimpleGenericBehaviour(TaskSet):
         if len(self.item_ids) < 1:
             return
 
-        resp = self.client.get("/stock/availability/" + self.get_rand_item_id())
+        resp = self.client.get("/stock/availability/" + self.get_rand_item_id(), name="/stock/item/availability")
 
     @task
     def stock_add(self):
         if len(self.item_ids) < 1:
             return
 
-        resp = self.client.post("/stock/add/" + self.get_rand_item_id() + "/" + str(randint(1, 100)))
+        resp = self.client.post("/stock/add/" + self.get_rand_item_id() + "/" + str(randint(1, 100)), name="/stock/add")
 
     # ORDERS
     @task
@@ -79,7 +80,7 @@ class SimpleGenericBehaviour(TaskSet):
         if len(self.user_ids) < 1:
             return
 
-        resp = self.client.post("/orders/create/" + self.get_rand_user_id())
+        resp = self.client.post("/orders/create/" + self.get_rand_user_id(), name="/orders/create")
         json = resp.json()
 
         self.ord_ids.append(json["orderId"])
@@ -89,14 +90,15 @@ class SimpleGenericBehaviour(TaskSet):
         if len(self.item_ids) < 1 or len(self.ord_ids) < 1:
             return
 
-        resp = self.client.post("/orders/additem/" + self.get_rand_ord_id() + "/" + self.get_rand_item_id())
+        resp = self.client.post("/orders/additem/" + self.get_rand_ord_id() + "/" + self.get_rand_item_id(),
+                                name="/orders/additem")
 
     @task
     def orders_find(self):
         if len(self.ord_ids) < 1:
             return
 
-        resp = self.client.get("/orders/find/" + self.get_rand_ord_id())
+        resp = self.client.get("/orders/find/" + self.get_rand_ord_id(), name="/orders/find")
 
     @task
     def orders_remove_item(self):
@@ -123,7 +125,7 @@ class SimpleGenericBehaviour(TaskSet):
         if len(self.ord_ids) < 1:
             return
 
-        resp = self.client.post("/orders/checkout/" + self.get_rand_ord_id())
+        resp = self.client.post("/orders/checkout/" + self.get_rand_ord_id(), name="/orders/checkout")
 
     # Payment
 
@@ -132,7 +134,7 @@ class SimpleGenericBehaviour(TaskSet):
         if len(self.ord_ids) < 1:
             return
 
-        resp = self.client.get("/payment/status/" + self.get_rand_ord_id())
+        resp = self.client.get("/payment/status/" + self.get_rand_ord_id(), name="/payment/status")
 
     # Helpers
     def get_rand_item_id(self):
@@ -163,14 +165,13 @@ class SimpleGenericBehaviour(TaskSet):
 
 class GenericWebsiteUser(HttpLocust):
     task_set = SimpleGenericBehaviour
-    host = 'http://localhost:8000/'
+    # host = 'http://localhost:8000/redis'
     min_wait = 1000
     max_wait = 3000
 
-
-class RedisWebsiteUser(GenericWebsiteUser):
-    host = GenericWebsiteUser.host + 'redis/'
-
-
-class SqlWebsiteUser(HttpLocust):
-    host = GenericWebsiteUser.host + 'sql/'
+# class RedisWebsiteUser(GenericWebsiteUser):
+#     host = GenericWebsiteUser.host + 'redis/'
+#
+#
+# class SqlWebsiteUser(HttpLocust):
+#     host = GenericWebsiteUser.host + 'sql/'
