@@ -15,7 +15,7 @@ class SingleUserBehaviour(TaskSequence):
         self.user_id = user_create(self)
 
     @seq_task(1)
-    def user_credit_add(self, amt=randint(1000, 10000)):
+    def user_credit_add(self, amt=randint(100000, 1000000)):
         resp = self.client.post("/users/credit/add/{0}/{1}".format(self.user_id, str(amt)),
                                 name="/users/credit/add/")
 
@@ -71,10 +71,10 @@ class SingleUserBehaviour(TaskSequence):
     @seq_task(6)
     @task(5)
     def orders_checkout(self):
-        ord_id = get_rand_ord_id(self.order_ids)
-        resp = self.client.post("/orders/checkout/" + ord_id, name="/orders/checkout")
+        for ord_id in self.order_ids:
+            resp = self.client.post("/orders/checkout/" + ord_id, name="/orders/checkout")
 
-        self.order_ids.remove(ord_id)
+        self.order_ids = []
 
 
 class SequenceWebsiteUser(HttpLocust):
@@ -90,7 +90,7 @@ class SequenceWebsiteUser(HttpLocust):
 item_ids = []
 
 
-def populate_stock(host, items=100):
+def populate_stock(host, items=500):
     for i in range(items):
         resp = requests.post(host + "/stock/item/create")
         json_resp = resp.json()
@@ -98,7 +98,7 @@ def populate_stock(host, items=100):
         item_id = json_resp["itemId"]
         item_ids.append(item_id)
 
-        resp = requests.post(host + "/stock/add/{0}/{1}".format(item_ids, str(randint(1, 100))))
+        resp = requests.post(host + "/stock/add/{0}/{1}".format(item_ids, str(randint(100000, 1000000))))
 
     # return item_ids
 
