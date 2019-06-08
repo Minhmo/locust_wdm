@@ -15,13 +15,13 @@ class SingleUserBehaviour(TaskSequence):
         self.user_id = user_create(self)
 
     @seq_task(1)
-    def user_credit_add(self, amt=randint(100000, 1000000)):
+    def user_credit_add(self, amt=20):
         resp = self.client.post("/users/credit/add/{0}/{1}".format(self.user_id, str(amt)),
                                 name="/users/credit/add/")
 
-    @task
-    def stock_availability(self):
-        resp = self.client.get("/stock/availability/" + get_rand_item_id(), name="/stock/item/availability")
+    # @task
+    # def stock_availability(self):
+    #     resp = self.client.get("/stock/availability/" + get_rand_item_id(), name="/stock/item/availability")
 
     @seq_task(2)
     @task(10)
@@ -69,7 +69,6 @@ class SingleUserBehaviour(TaskSequence):
                                name="/orders/removeItem/")
 
     @seq_task(6)
-    @task(5)
     def orders_checkout(self):
         for ord_id in self.order_ids:
             resp = self.client.post("/orders/checkout/" + ord_id, name="/orders/checkout")
@@ -92,13 +91,13 @@ item_ids = []
 
 def populate_stock(host, items=500):
     for i in range(items):
-        resp = requests.post(host + "/stock/item/create")
+        resp = requests.post(host + "/stock/item/create", {"price": 1})
         json_resp = resp.json()
 
         item_id = json_resp["itemId"]
         item_ids.append(item_id)
 
-        resp = requests.post(host + "/stock/add/{0}/{1}".format(item_ids, str(randint(100000, 1000000))))
+        resp = requests.post(host + "/stock/add/{0}/{1}".format(item_id, str(1000000)))
 
     # return item_ids
 
