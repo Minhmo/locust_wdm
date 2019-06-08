@@ -2,4 +2,4 @@
 Locust load test repository
 
 ##
-To run, type `locust -f Main.py` in terminal on app home path.
+To run, type `locust -f Main.py --host=http://localhost:8000/redis` in terminal on app home path.

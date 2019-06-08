@@ -28,7 +28,7 @@ class SimpleGenericBehaviour(TaskSet):
                                 name="/users/credit/add/")
 
     @task
-    def user_credit_add(self):
+    def user_credit(self):
         if len(self.user_ids) < 1:
             return
 
@@ -105,7 +105,8 @@ class SimpleGenericBehaviour(TaskSet):
         if len(self.ord_ids) < 1:
             return
 
-        resp = self.client.get("/orders/find/" + self.get_rand_ord_id())
+        ord_id = self.get_rand_ord_id()
+        resp = self.client.get("/orders/find/" + ord_id, name="/orders/find/")
         json_resp = resp.json()
 
         if len(json_resp) < 1 or len(json_resp["orderItems"]) < 1:
@@ -116,9 +117,10 @@ class SimpleGenericBehaviour(TaskSet):
         arr_len = len(order_items_keys) - 1
 
         if arr_len == 0:
-            self.client.post("/orders/removeitem/" + order_items_keys[0])
+            self.client.post("/orders/removeitem/" + ord_id + "/" + order_items_keys[0], name="/orders/removeitem/")
         else:
-            resp = self.client.post("/orders/removeitem/" + order_items_keys[randint(0, arr_len)])
+            resp = self.client.post("/orders/removeitem/" + ord_id + "/" + order_items_keys[randint(0, arr_len)],
+                                    name="/orders/removeitem/")
 
     @task
     def orders_checkout(self):
@@ -168,10 +170,3 @@ class GenericWebsiteUser(HttpLocust):
     # host = 'http://localhost:8000/redis'
     min_wait = 1000
     max_wait = 3000
-
-# class RedisWebsiteUser(GenericWebsiteUser):
-#     host = GenericWebsiteUser.host + 'redis/'
-#
-#
-# class SqlWebsiteUser(HttpLocust):
-#     host = GenericWebsiteUser.host + 'sql/'
