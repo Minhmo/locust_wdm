@@ -1,6 +1,5 @@
 from locust import HttpLocust, TaskSet, task, TaskSequence, seq_task
 from random import randint
-import pydevd
 
 
 class SimpleGenericBehaviour(TaskSet):
