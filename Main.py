@@ -166,6 +166,7 @@ class SimpleGenericBehaviour(TaskSet):
 
 class GenericWebsiteUser(HttpLocust):
     task_set = SimpleGenericBehaviour
+
     # host = 'http://localhost:8000/redis'
     min_wait = 1000
     max_wait = 3000
